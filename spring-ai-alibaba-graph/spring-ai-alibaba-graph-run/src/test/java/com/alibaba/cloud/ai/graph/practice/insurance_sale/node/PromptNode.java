@@ -9,7 +9,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PromptNode implements NodeAction {
+public class PromptNode implements NodeAction<NodeState,Map<String, Object>> {
 
 	private Function<String, Map<String, String>> inputMapFunc;
 

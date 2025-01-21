@@ -6,6 +6,7 @@ import lombok.Value;
 import lombok.experimental.Accessors;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a node in a graph with a unique identifier and an associated action.
@@ -32,7 +33,7 @@ class Node {
 
 	public Node(String id, AsyncNodeAction action) {
 		this.id = id;
-		this.action = AsyncNodeActionWithConfig.of(action);
+		this.action = (o, config) -> action.apply(o);
 	}
 
 	public Node(String id, AsyncNodeActionWithConfig action) {

@@ -1,5 +1,10 @@
 package com.alibaba.cloud.ai.graph.state;
 
+import com.alibaba.cloud.ai.graph.GraphStateException;
+import com.alibaba.cloud.ai.graph.state.reduce.OverrideReducer;
+import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -14,6 +19,7 @@ import static java.util.Optional.ofNullable;
 /**
  * Represents the state of an agent with a map of data.
  */
+@Slf4j
 public class NodeState {
 
 	public static final String INPUT = "input";
@@ -112,6 +118,40 @@ public class NodeState {
 
 		return Stream.concat(state.entrySet().stream(), partialState.entrySet().stream())
 			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, NodeState::mergeFunction));
+	}
+
+	public static <O> Map<String, Object> updateState(Map<String, Object> state, O outputState)
+			throws GraphStateException {
+		Map<String, Object> partialState = new HashMap<>();
+		for (Field field : outputState.getClass().getFields()) {
+			Reducer reducer;
+			if (field.isAnnotationPresent(ReduceStrategy.class)) {
+				ReduceStrategy reduceStrategy = field.getAnnotation(ReduceStrategy.class);
+				// todo put reducers into a map (or integrate with Spring context) to
+				// cache reducers
+				ReduceStrategyType value = reduceStrategy.value();
+				try {
+					reducer = value.reducer();
+				}
+				catch (Exception e) {
+					log.error("Can not construct {}. ", value.getClass(), e);
+					throw new GraphStateException("Can not construct reducer");
+				}
+			}
+			else {
+				reducer = new OverrideReducer();
+			}
+			Object newValue;
+			try {
+				newValue = field.get(outputState);
+			}
+			catch (IllegalAccessException e) {
+				throw new GraphStateException("Can not access " + field.getName());
+			}
+			newValue = reducer.apply(state.get(field.getName()), newValue);
+			partialState.put(field.getName(), newValue);
+		}
+		return partialState;
 	}
 
 	/**

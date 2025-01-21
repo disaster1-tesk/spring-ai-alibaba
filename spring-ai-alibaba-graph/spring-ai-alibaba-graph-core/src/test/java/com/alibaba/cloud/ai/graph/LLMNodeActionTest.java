@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Description;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -74,7 +75,9 @@ public class LLMNodeActionTest {
                         new SystemPromptTemplate("You're a helpful {type} assistant"),
                         new PromptTemplate("If I step on an ant and kill it, am I breaking the law?")))
                 .build();
-        Map<String, Object> result = node.apply(mockState());
+        RunnableConfig config = new RunnableConfig.Builder().build();
+        CompletableFuture<Map<String, Object>> apply = node.apply(mockState(), config);
+        Map<String, Object> result = apply.get();
         assertEquals(1, result.size());
         System.out.println(result);
 
@@ -90,7 +93,9 @@ public class LLMNodeActionTest {
                 .withInputKey("llmName")
                 .withOutputKey("llmText")
                 .build();
-        Map<String, Object> result = nodeAction.apply(mockState());
+        RunnableConfig config = new RunnableConfig.Builder().build();
+        CompletableFuture<Map<String, Object>> apply  = nodeAction.apply(mockState(),config);
+        Map<String, Object> result = apply.get();
         assertEquals(1, result.size());
         for (String outputKey : result.keySet()) {
             assertEquals("llmText", outputKey);
@@ -109,7 +114,9 @@ public class LLMNodeActionTest {
                 .withFunctions("consultLawyer")
                 .build();
 
-        Map<String, Object> result = node.apply(mockState());
+        RunnableConfig config = new RunnableConfig.Builder().build();
+        CompletableFuture<Map<String, Object>> apply = node.apply(mockState(),config);
+        Map<String, Object> result = apply.get();
         assertEquals(1, result.size());
         System.out.println(result);
     }

@@ -17,6 +17,8 @@
 package com.alibaba.cloud.ai.graph.node.llm;
 
 import com.alibaba.cloud.ai.graph.NodeActionDescriptor;
+import com.alibaba.cloud.ai.graph.RunnableConfig;
+import com.alibaba.cloud.ai.graph.action.AsyncNodeActionWithConfig;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
 import com.alibaba.cloud.ai.graph.node.AbstractNode;
 import com.alibaba.cloud.ai.graph.state.NodeState;
@@ -30,13 +32,15 @@ import org.springframework.ai.model.function.FunctionCallback;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
  * @author 北极星
  * TODO add chat memory
  */
-public class LLMNodeAction extends AbstractNode implements NodeAction {
+public class LLMNodeAction extends AbstractNode implements AsyncNodeActionWithConfig<NodeState, Map<String, Object>> {
 
     public static final String DEFAULT_OUTPUT_KEY = "text";
 
@@ -58,7 +62,7 @@ public class LLMNodeAction extends AbstractNode implements NodeAction {
     }
 
     @Override
-    public Map<String, Object> apply (NodeState state) throws Exception {
+    public CompletableFuture<Map<String, Object>> apply (NodeState state, RunnableConfig config)  {
         Map<String, Object> partialState = reduceState(state);
          List<Message> messages = renderPromptTemplates(partialState, promptTemplates);
         List<Generation> generations = chatClient.prompt().messages(messages).call().chatResponse().getResults();
@@ -96,7 +100,7 @@ public class LLMNodeAction extends AbstractNode implements NodeAction {
      * @param messages llm output messages
      * @return map
      */
-    private Map<String, Object> formattedOutput(List<Message> messages){
+    private CompletableFuture<Map<String, Object>> formattedOutput(List<Message> messages){
         String outputKey;
         if (!nodeActionDescriptor.getOutputSchema().isEmpty()){
             // only the first output key is accepted
@@ -106,7 +110,7 @@ public class LLMNodeAction extends AbstractNode implements NodeAction {
         }
         // concat all the message content into a string
         String outputValue = messages.stream().map(Message::getContent).reduce("", (a, b)-> a + b + "\n");
-        return Map.of(outputKey, outputValue);
+        return CompletableFuture.supplyAsync(() -> Map.of(outputKey, outputValue));
     }
 
 

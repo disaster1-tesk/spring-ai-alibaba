@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.alibaba.cloud.ai.graph.utils.CollectionsUtils.mapOf;
 
-class SubgraphNodeAction implements AsyncNodeActionWithConfig {
+class SubgraphNodeAction implements AsyncNodeActionWithConfig<NodeState, Map<String, Object>> {
 
 	final CompiledGraph subGraph;
 
@@ -31,6 +31,11 @@ class SubgraphNodeAction implements AsyncNodeActionWithConfig {
 		}
 
 		return future;
+	}
+
+	@Override
+	public NodeActionDescriptor getNodeActionDescriptor() {
+		return null;
 	}
 
 }
