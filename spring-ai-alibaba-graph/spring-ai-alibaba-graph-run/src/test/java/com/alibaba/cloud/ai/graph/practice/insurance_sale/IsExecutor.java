@@ -13,7 +13,7 @@ import com.alibaba.cloud.ai.graph.serializer.agent.AgentAction;
 import com.alibaba.cloud.ai.graph.serializer.agent.AgentFinish;
 import com.alibaba.cloud.ai.graph.serializer.agent.AgentOutcome;
 import com.alibaba.cloud.ai.graph.serializer.agent.JSONStateSerializer;
-import com.alibaba.cloud.ai.graph.state.NodeState;
+import com.alibaba.cloud.ai.graph.state.OverAllState;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -149,7 +149,7 @@ public class IsExecutor {
 		this.agentService = agentService;
 	}
 
-	Map<String, Object> callAgent(NodeState state) {
+	Map<String, Object> callAgent(OverAllState state) {
 		log.info("callAgent");
 
 		var input = state.input()
@@ -162,17 +162,17 @@ public class IsExecutor {
 
 		if (output.hasToolCalls()) {
 			var action = new AgentAction(output.getToolCalls().get(0), "");
-			return Map.of(NodeState.OUTPUT, new AgentOutcome(action, null));
+			return Map.of(OverAllState.OUTPUT, new AgentOutcome(action, null));
 
 		}
 		else {
 			var finish = new AgentFinish(Map.of("returnValues", output.getContent()), output.getContent());
 
-			return Map.of(NodeState.OUTPUT, new AgentOutcome(null, finish));
+			return Map.of(OverAllState.OUTPUT, new AgentOutcome(null, finish));
 		}
 	}
 
-	String questionEnough(NodeState state) {
+	String questionEnough(OverAllState state) {
 
 		Map<String, Object> returnValues = state.data();
 		if (!returnValues.containsKey("input")) {
@@ -188,7 +188,7 @@ public class IsExecutor {
 		}
 	}
 
-	String purchaseIntention(NodeState state) {
+	String purchaseIntention(OverAllState state) {
 
 		var input = state.input()
 			.filter(StringUtils::hasText)
@@ -208,7 +208,7 @@ public class IsExecutor {
 		}
 	}
 
-	String generateBills(NodeState state) {
+	String generateBills(OverAllState state) {
 
 		var input = state.input()
 			.filter(StringUtils::hasText)
@@ -222,7 +222,7 @@ public class IsExecutor {
 		}
 	}
 
-	String payFinish(NodeState state) {
+	String payFinish(OverAllState state) {
 
 		var input = state.input()
 			.filter(StringUtils::hasText)

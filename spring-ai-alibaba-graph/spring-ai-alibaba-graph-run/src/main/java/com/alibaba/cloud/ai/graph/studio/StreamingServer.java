@@ -11,7 +11,7 @@ import com.alibaba.cloud.ai.graph.checkpoint.config.SaverConfig;
 import com.alibaba.cloud.ai.graph.checkpoint.constant.SaverConstant;
 import com.alibaba.cloud.ai.graph.checkpoint.savers.MemorySaver;
 import com.alibaba.cloud.ai.graph.serializer.plain_text.PlainTextStateSerializer;
-import com.alibaba.cloud.ai.graph.state.NodeState;
+import com.alibaba.cloud.ai.graph.state.OverAllState;
 import com.alibaba.cloud.ai.graph.state.StateSnapshot;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -196,11 +196,11 @@ public interface StreamingServer {
 				generator.forEachAsync(s -> {
 					try {
 						try {
-							if (s.state().data().containsKey(NodeState.SUB_GRAPH)) {
-								CompiledGraph.AsyncNodeGenerator<NodeOutput> subGenerator = (CompiledGraph.AsyncNodeGenerator) s
+							if (s.state().data().containsKey(OverAllState.SUB_GRAPH)) {
+								CompiledGraph.AsyncNodeGenerator subGenerator = (CompiledGraph.AsyncNodeGenerator) s
 									.state()
 									.data()
-									.get(NodeState.SUB_GRAPH);
+									.get(OverAllState.SUB_GRAPH);
 								subGenerator.forEach(subS -> {
 									writer.printf("[ \"%s\",", threadId);
 									writer.println();

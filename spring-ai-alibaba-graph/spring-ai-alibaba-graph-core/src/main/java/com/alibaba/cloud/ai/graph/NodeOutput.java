@@ -1,6 +1,6 @@
 package com.alibaba.cloud.ai.graph;
 
-import com.alibaba.cloud.ai.graph.state.NodeState;
+import com.alibaba.cloud.ai.graph.state.OverAllState;
 
 import static java.lang.String.format;
 
@@ -11,7 +11,7 @@ import static java.lang.String.format;
  */
 public class NodeOutput {
 
-	public static NodeOutput of(String node, NodeState state) {
+	public static NodeOutput of(String node, Object state) {
 		return new NodeOutput(node, state);
 	}
 
@@ -23,13 +23,15 @@ public class NodeOutput {
 	/**
 	 * The state associated with the node.
 	 */
-	private final NodeState state;
+//	private final OverAllState state;
+
+	private final Object state;
 
 	public String node() {
 		return node;
 	}
 
-	public NodeState state() {
+	public Object state() {
 		return state;
 	}
 
@@ -37,11 +39,11 @@ public class NodeOutput {
 	 * @deprecated Use {@link #state()} instead.
 	 */
 	@Deprecated
-	public NodeState getState() {
+	public Object getState() {
 		return state();
 	}
 
-	protected NodeOutput(String node, NodeState state) {
+	protected NodeOutput(String node, Object state) {
 		this.node = node;
 		this.state = state;
 	}

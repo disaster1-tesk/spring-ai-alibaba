@@ -1,6 +1,6 @@
 package com.alibaba.cloud.ai.graph;
 
-import com.alibaba.cloud.ai.graph.state.NodeState;
+import com.alibaba.cloud.ai.graph.state.OverAllState;
 
 import static java.lang.String.format;
 import static com.alibaba.cloud.ai.graph.StateGraph.START;
@@ -78,8 +78,8 @@ public abstract class DiagramGenerator {
 
 	}
 
-	private <State extends NodeState> void edgeCondition(StringBuilder sb, EdgeCondition condition, String k,
-			String conditionName, boolean printConditionalEdge) {
+	private <State extends OverAllState> void edgeCondition(StringBuilder sb, EdgeCondition condition, String k,
+                                                            String conditionName, boolean printConditionalEdge) {
 		call(commentLine(sb, !printConditionalEdge), k, conditionName);
 
 		condition.mappings().forEach((cond, to) -> {

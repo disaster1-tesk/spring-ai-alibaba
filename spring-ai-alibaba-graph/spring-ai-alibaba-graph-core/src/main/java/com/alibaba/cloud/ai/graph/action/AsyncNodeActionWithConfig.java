@@ -1,25 +1,25 @@
 package com.alibaba.cloud.ai.graph.action;
 
 import com.alibaba.cloud.ai.graph.RunnableConfig;
-import com.alibaba.cloud.ai.graph.state.NodeState;
+import com.alibaba.cloud.ai.graph.state.OverAllState;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
 public interface AsyncNodeActionWithConfig
-		extends BiFunction<NodeState, RunnableConfig, CompletableFuture<Map<String, Object>>> {
+		extends BiFunction<OverAllState, RunnableConfig, CompletableFuture<Map<String,Object>>> {
 
 	/**
 	 * Applies this action to the given agent state.
 	 * @param t the agent state
 	 * @return a CompletableFuture representing the result of the action
 	 */
-	CompletableFuture<Map<String, Object>> apply(NodeState t, RunnableConfig config);
+	CompletableFuture<Map<String,Object>> apply(OverAllState t, RunnableConfig config);
 
 	static AsyncNodeActionWithConfig node_async(NodeActionWithConfig syncAction) {
 		return (t, config) -> {
-			CompletableFuture<Map<String, Object>> result = new CompletableFuture<>();
+			CompletableFuture<Map<String,Object>> result = new CompletableFuture<>();
 			try {
 				result.complete(syncAction.apply(t, config));
 			}

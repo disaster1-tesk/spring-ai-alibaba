@@ -17,9 +17,10 @@
 package com.alibaba.cloud.ai.graph.node.llm;
 
 import com.alibaba.cloud.ai.graph.NodeActionDescriptor;
+import com.alibaba.cloud.ai.graph.NodeOutput;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
 import com.alibaba.cloud.ai.graph.node.AbstractNode;
-import com.alibaba.cloud.ai.graph.state.NodeState;
+import com.alibaba.cloud.ai.graph.state.OverAllState;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.model.ChatModel;
@@ -58,7 +59,7 @@ public class LLMNodeAction extends AbstractNode implements NodeAction {
     }
 
     @Override
-    public Map<String, Object> apply (NodeState state) throws Exception {
+    public Map<String,Object> apply (OverAllState state) throws Exception {
         Map<String, Object> partialState = reduceState(state);
          List<Message> messages = renderPromptTemplates(partialState, promptTemplates);
         List<Generation> generations = chatClient.prompt().messages(messages).call().chatResponse().getResults();
@@ -71,7 +72,7 @@ public class LLMNodeAction extends AbstractNode implements NodeAction {
      * @param state global state
      * @return partial state
      */
-    private Map<String, Object> reduceState(NodeState state){
+    private Map<String, Object> reduceState(OverAllState state){
         if (nodeActionDescriptor.getInputSchema().isEmpty()){
             return state.data();
         }
@@ -96,7 +97,7 @@ public class LLMNodeAction extends AbstractNode implements NodeAction {
      * @param messages llm output messages
      * @return map
      */
-    private Map<String, Object> formattedOutput(List<Message> messages){
+    private Map<String,Object> formattedOutput(List<Message> messages){
         String outputKey;
         if (!nodeActionDescriptor.getOutputSchema().isEmpty()){
             // only the first output key is accepted

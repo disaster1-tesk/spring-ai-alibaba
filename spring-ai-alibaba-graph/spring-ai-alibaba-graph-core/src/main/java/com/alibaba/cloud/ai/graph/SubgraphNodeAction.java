@@ -1,7 +1,7 @@
 package com.alibaba.cloud.ai.graph;
 
 import com.alibaba.cloud.ai.graph.action.AsyncNodeActionWithConfig;
-import com.alibaba.cloud.ai.graph.state.NodeState;
+import com.alibaba.cloud.ai.graph.state.OverAllState;
 import org.bsc.async.AsyncGenerator;
 
 import java.util.Map;
@@ -18,12 +18,12 @@ class SubgraphNodeAction implements AsyncNodeActionWithConfig {
 	}
 
 	@Override
-	public CompletableFuture<Map<String, Object>> apply(NodeState state, RunnableConfig config) {
+	public CompletableFuture<Map<String, Object>> apply(OverAllState state, RunnableConfig config) {
 		CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
 
 		try {
 			AsyncGenerator<NodeOutput> generator = subGraph.stream(state.data(), config);
-			future.complete(mapOf(NodeState.SUB_GRAPH, generator));
+			future.complete(mapOf(OverAllState.SUB_GRAPH, generator));
 		}
 		catch (Exception e) {
 

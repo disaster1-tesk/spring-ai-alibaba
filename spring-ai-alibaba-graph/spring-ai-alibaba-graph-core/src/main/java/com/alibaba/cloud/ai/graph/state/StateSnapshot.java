@@ -35,7 +35,7 @@ public final class StateSnapshot extends NodeOutput {
 		return next();
 	}
 
-	private StateSnapshot(@NonNull String node, @NonNull NodeState state, @NonNull RunnableConfig config) {
+	private StateSnapshot(@NonNull String node, @NonNull OverAllState state, @NonNull RunnableConfig config) {
 		super(node, state);
 		this.config = config;
 	}
@@ -46,13 +46,13 @@ public final class StateSnapshot extends NodeOutput {
 		return format("StateSnapshot{node=%s, state=%s, config=%s}", node(), state(), config());
 	}
 
-	public static StateSnapshot of(Checkpoint checkpoint, RunnableConfig config, AgentStateFactory factory) {
+	public static StateSnapshot of(Checkpoint checkpoint, RunnableConfig config) {
 
 		RunnableConfig newConfig = RunnableConfig.builder(config)
 			.checkPointId(checkpoint.getId())
 			.nextNode(checkpoint.getNextNodeId())
 			.build();
-		return new StateSnapshot(checkpoint.getNodeId(), factory.apply(checkpoint.getState()), newConfig);
+		return new StateSnapshot(checkpoint.getNodeId(), new OverAllState(checkpoint.getState()), newConfig);
 	}
 
 }

@@ -3,7 +3,7 @@ package com.alibaba.cloud.ai.graph;
 import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
 import com.alibaba.cloud.ai.graph.node.llm.LLMNodeAction;
-import com.alibaba.cloud.ai.graph.state.NodeState;
+import com.alibaba.cloud.ai.graph.state.OverAllState;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
@@ -30,7 +30,7 @@ public class LLMNodeActionTest {
 
     @Autowired
     private ApplicationContext applicationContext;
-    static class MockState extends NodeState{
+    static class MockState extends OverAllState {
 
         /**
          * Constructs an AgentState with the given initial data.

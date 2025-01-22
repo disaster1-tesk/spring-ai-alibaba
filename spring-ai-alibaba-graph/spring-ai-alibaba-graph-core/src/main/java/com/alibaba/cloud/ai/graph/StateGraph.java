@@ -3,9 +3,13 @@ package com.alibaba.cloud.ai.graph;
 import com.alibaba.cloud.ai.graph.action.AsyncEdgeAction;
 import com.alibaba.cloud.ai.graph.action.AsyncNodeAction;
 import com.alibaba.cloud.ai.graph.action.AsyncNodeActionWithConfig;
+import com.alibaba.cloud.ai.graph.checkpoint.config.SaverConfig;
+import com.alibaba.cloud.ai.graph.checkpoint.constant.SaverConstant;
+import com.alibaba.cloud.ai.graph.checkpoint.savers.MemorySaver;
 import com.alibaba.cloud.ai.graph.serializer.StateSerializer;
+import com.alibaba.cloud.ai.graph.serializer.agent.JSONStateSerializer;
 import com.alibaba.cloud.ai.graph.state.AgentStateFactory;
-import com.alibaba.cloud.ai.graph.state.NodeState;
+import com.alibaba.cloud.ai.graph.state.OverAllState;
 import lombok.Getter;
 import lombok.NonNull;
 import org.bsc.async.AsyncGenerator;
@@ -86,29 +90,30 @@ public class StateGraph {
 
 	Set<Node> nodes = new LinkedHashSet<>();
 
-	Set<Edge<NodeState>> edges = new LinkedHashSet<>();
+	Set<Edge<OverAllState>> edges = new LinkedHashSet<>();
 
-	private EdgeValue<NodeState> entryPoint;
+	private EdgeValue<OverAllState> entryPoint;
 
 	private String finishPoint;
 
 	@Getter
-	private final StateSerializer stateSerializer;
+	private final StateSerializer stateSerializer = new JSONStateSerializer();
 
-	/**
-	 * Constructs a new StateGraph with the specified serializer.
-	 * @param stateSerializer the serializer to serialize the state
-	 */
-	public StateGraph(@NonNull StateSerializer stateSerializer) {
-		this.stateSerializer = stateSerializer;
-	}
+//	/**
+//	 * Constructs a new StateGraph with the specified serializer.
+//	 * @param stateSerializer the serializer to serialize the state
+//	 */
+//	public StateGraph(@NonNull StateSerializer stateSerializer) {
+//		this.stateSerializer = stateSerializer;
+//	}
 
+	@Deprecated
 	public final AgentStateFactory getStateFactory() {
 		return stateSerializer.stateFactory();
 	}
 
 	@Deprecated
-	public EdgeValue<NodeState> getEntryPoint() {
+	public EdgeValue<OverAllState> getEntryPoint() {
 		return entryPoint;
 	}
 
@@ -174,7 +179,7 @@ public class StateGraph {
 	public StateGraph addSubgraph(String id, CompiledGraph subGraph) throws GraphStateException {
 		return addNode(id, AsyncNodeActionWithConfig.node_async((state, config) -> {
 			AsyncGenerator<NodeOutput> generator = subGraph.stream(state.data(), config);
-			return Map.of(NodeState.SUB_GRAPH, generator);
+			return Map.of(OverAllState.SUB_GRAPH, generator);
 		}));
 	}
 
@@ -216,7 +221,7 @@ public class StateGraph {
 			return this;
 		}
 
-		Edge<NodeState> edge = new Edge<>(sourceId, new EdgeValue<>(targetId, null));
+		Edge<OverAllState> edge = new Edge<>(sourceId, new EdgeValue<>(targetId, null));
 
 		if (edges.contains(edge)) {
 			throw Errors.duplicateEdgeError.exception(sourceId);
@@ -248,7 +253,7 @@ public class StateGraph {
 			return this;
 		}
 
-		Edge<NodeState> edge = new Edge<>(sourceId, new EdgeValue<>(null, new EdgeCondition(condition, mappings)));
+		Edge<OverAllState> edge = new Edge<>(sourceId, new EdgeValue<>(null, new EdgeCondition(condition, mappings)));
 
 		if (edges.contains(edge)) {
 			throw Errors.duplicateEdgeError.exception(sourceId);
@@ -290,7 +295,7 @@ public class StateGraph {
 			}
 		}
 
-		for (Edge<NodeState> edge : edges) {
+		for (Edge<OverAllState> edge : edges) {
 
 			if (!nodes.contains(nodeById(edge.sourceId()))) {
 				throw Errors.missingNodeReferencedByEdge.exception(edge.sourceId());
@@ -322,7 +327,12 @@ public class StateGraph {
 	 * @throws GraphStateException if there are errors related to the graph state
 	 */
 	public CompiledGraph compile() throws GraphStateException {
-		return compile(CompileConfig.builder().build());
+		return compile(CompileConfig.builder()
+				.saverConfig(
+						SaverConfig.builder()
+								.register(SaverConstant.MEMORY, new MemorySaver())
+								.build())
+				.build());
 	}
 
 	/**
