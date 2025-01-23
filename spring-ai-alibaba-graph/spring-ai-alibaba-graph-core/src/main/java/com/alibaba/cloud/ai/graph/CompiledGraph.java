@@ -371,7 +371,7 @@ public class CompiledGraph {
 
                 // Reset checkpoint id
                 this.config = config.withCheckPointId(null);
-                this.overAllState = new OverAllState(currentState);
+                this.overAllState = new OverAllState(new HashMap<>(currentState));
 
                 this.nextNodeId = startCheckpoint.getNextNodeId();
                 this.currentNodeId = null;
@@ -460,7 +460,7 @@ public class CompiledGraph {
                         if (currentState.containsKey(OverAllState.SUB_GRAPH)) {
                             return buildCurrentNodeOutput(currentNodeId);
                         } else {
-                            Optional<Checkpoint> cp = addCheckpoint(config, currentNodeId, currentState, nextNodeId);
+                            Optional<Checkpoint> cp = addCheckpoint(config, currentNodeId, overAllState.data(), nextNodeId);
                             return (cp.isPresent() && config.streamMode() == StreamMode.SNAPSHOTS)
                                     ? buildStateSnapshot(cp.get()) : NodeOutput.of(currentNodeId, overAllState);
                         }

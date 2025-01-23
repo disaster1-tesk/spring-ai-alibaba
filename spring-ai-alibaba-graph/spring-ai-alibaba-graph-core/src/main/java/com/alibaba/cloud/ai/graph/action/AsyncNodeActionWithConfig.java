@@ -15,7 +15,7 @@ public interface AsyncNodeActionWithConfig
 	 * @param t the agent state
 	 * @return a CompletableFuture representing the result of the action
 	 */
-	CompletableFuture<Map<String,Object>> apply(OverAllState t, RunnableConfig config);
+	CompletableFuture<Map<String,Object>> apply(OverAllState state, RunnableConfig config);
 
 	static AsyncNodeActionWithConfig node_async(NodeActionWithConfig syncAction) {
 		return (t, config) -> {
