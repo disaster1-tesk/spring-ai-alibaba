@@ -75,4 +75,19 @@ public class CheckpointTest {
 		assertEquals(count, size, "Checkpoint Lost during concurrency");
 	}
 
+
+	@Test
+	public void currentTest(){
+		ExecutorService executorService = Executors.newCachedThreadPool();
+		int count = 10000;
+		for (int i = 0; i < count; i++) {
+			executorService.submit(() -> {
+                try {
+                    concurrentExceptionTest();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+		}
+	}
 }
